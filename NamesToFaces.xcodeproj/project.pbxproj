@@ -13,6 +13,7 @@
 		35C929E82444E7C500FF3568 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 35C929E62444E7C500FF3568 /* Main.storyboard */; };
 		35C929EA2444E7C700FF3568 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 35C929E92444E7C700FF3568 /* Assets.xcassets */; };
 		35C929ED2444E7C700FF3568 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 35C929EB2444E7C700FF3568 /* LaunchScreen.storyboard */; };
+		35C929F52444EADE00FF3568 /* PersonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C929F42444EADE00FF3568 /* PersonCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		35C929E92444E7C700FF3568 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		35C929EC2444E7C700FF3568 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		35C929EE2444E7C700FF3568 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		35C929F42444EADE00FF3568 /* PersonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 				35C929E02444E7C500FF3568 /* AppDelegate.swift */,
 				35C929E22444E7C500FF3568 /* SceneDelegate.swift */,
 				35C929E42444E7C500FF3568 /* ViewController.swift */,
+				35C929F42444EADE00FF3568 /* PersonCell.swift */,
 				35C929E62444E7C500FF3568 /* Main.storyboard */,
 				35C929E92444E7C700FF3568 /* Assets.xcassets */,
 				35C929EB2444E7C700FF3568 /* LaunchScreen.storyboard */,
@@ -140,6 +143,7 @@
 			files = (
 				35C929E52444E7C500FF3568 /* ViewController.swift in Sources */,
 				35C929E12444E7C500FF3568 /* AppDelegate.swift in Sources */,
+				35C929F52444EADE00FF3568 /* PersonCell.swift in Sources */,
 				35C929E32444E7C500FF3568 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
