@@ -15,6 +15,13 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        let defaults = UserDefaults.standard
+        
+        if let savedPeople = defaults.object(forKey: "people") as? Data {
+            if let decodedPeople = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(savedPeople) as? [Person] {
+                people = decodedPeople
+            }
+        }
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewPerson))
     }
     
@@ -51,6 +58,7 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
             self?.people.remove(at: indexPath.item)
             
             self?.collectionView.reloadData()
+            self?.save()
         })
         alertController.addAction(UIAlertAction(title: "Rename", style: .default) { [weak self] _ in
             let ac = UIAlertController(title: "Rename person", message: nil, preferredStyle: .alert)
@@ -61,6 +69,7 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
                 person.name = newName
 
                 self?.collectionView.reloadData()
+                self?.save()
             })
             
             self?.present(ac, animated: true)
@@ -79,6 +88,13 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
         picker.allowsEditing = true
         picker.delegate = self
         present(picker, animated: true)
+    }
+    
+    func save() {
+        if let savedData = try? NSKeyedArchiver.archivedData(withRootObject: people, requiringSecureCoding: false) {
+            let defaults = UserDefaults.standard
+            defaults.set(savedData, forKey: "people")
+        }
     }
     
     func getDocumentsDirectory() -> URL {
@@ -101,6 +117,7 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
         collectionView.reloadData()
         
         dismiss(animated: true)
+        save()
     }
 
 
