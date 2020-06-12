@@ -7,16 +7,17 @@
 //
 
 import UIKit
+import LocalAuthentication
 
 class ViewController: UICollectionViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     
     var people = [Person]()
+    var isLocked = true
+    let defaults = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        let defaults = UserDefaults.standard
-        
         if let savedPeople = defaults.object(forKey: "people") as? Data {
             let decoder = JSONDecoder()
             
@@ -26,11 +27,25 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
                 print("Failed to load people.")
             }
         }
+        
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "lock"), for: .normal)
+        button.addTarget(self, action: #selector(authenticate), for: .touchUpInside)
+        
+        let barButton = UIBarButtonItem(customView: button)
+        navigationItem.rightBarButtonItem = barButton
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewPerson))
+        navigationItem.leftBarButtonItem?.isEnabled = !isLocked
+        
+        KeychainWrapper.standard.set("p@$$w0Rd", forKey: "Password")
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return people.count
+        if isLocked {
+            return 0
+        } else {
+            return people.count
+        }
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -94,10 +109,72 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
         present(picker, animated: true)
     }
     
+    @objc func authenticate() {
+        if isLocked {
+            let context = LAContext()
+            var error: NSError?
+            
+            if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+                let reason = "Use Touch ID to unlock the secret."
+                
+                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { [weak self] (success, authenticationError) in
+                    DispatchQueue.main.async {
+                        if success {
+                            self?.isLocked = false
+                            self?.collectionView.reloadData()
+                            let button = UIButton(type: .system)
+                            button.setImage(UIImage(systemName: "lock.open"), for: .normal)
+                            button.addTarget(self, action: #selector(self?.authenticate), for: .touchUpInside)
+                            
+                            let barButton = UIBarButtonItem(customView: button)
+                            self?.navigationItem.rightBarButtonItem = barButton
+                            self?.navigationItem.leftBarButtonItem?.isEnabled = !self!.isLocked
+                        } else {
+                            let ac = UIAlertController(title: "Enter password", message: nil, preferredStyle: .alert)
+                            ac.addTextField()
+                            ac.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) in
+                                if ac.textFields![0].text == KeychainWrapper.standard.string(forKey: "Password") {
+                                    self?.isLocked = false
+                                    self?.collectionView.reloadData()
+                                    let button = UIButton(type: .system)
+                                    button.setImage(UIImage(systemName: "lock.open"), for: .normal)
+                                    button.addTarget(self, action: #selector(self?.authenticate), for: .touchUpInside)
+                                    
+                                    let barButton = UIBarButtonItem(customView: button)
+                                    self?.navigationItem.rightBarButtonItem = barButton
+                                    self?.navigationItem.leftBarButtonItem?.isEnabled = !self!.isLocked
+                                } else {
+                                    let ac = UIAlertController(title: "Authentication failed", message: "You could not be verified; please try again.", preferredStyle: .alert)
+                                    ac.addAction(UIAlertAction(title: "OK", style: .default))
+                                    self?.present(ac, animated: true)
+                                }
+                            }))
+                            self?.present(ac, animated: true)
+                        }
+                    }
+                }
+            } else {
+                let ac = UIAlertController(title: "Biometry unavailable", message: "Your device is not configured for biometric authentication.", preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(ac, animated: true)
+            }
+        } else {
+            save()
+            isLocked = true
+            collectionView.reloadData()
+            let button = UIButton(type: .system)
+            button.setImage(UIImage(systemName: "lock"), for: .normal)
+            button.addTarget(self, action: #selector(authenticate), for: .touchUpInside)
+            
+            let barButton = UIBarButtonItem(customView: button)
+            navigationItem.rightBarButtonItem = barButton
+            navigationItem.leftBarButtonItem?.isEnabled = !isLocked
+        }
+    }
+    
     func save() {
         let encoder = JSONEncoder()
         if let savedData = try? encoder.encode(people) {
-            let defaults = UserDefaults.standard
             defaults.set(savedData, forKey: "people")
         } else {
             print("Failed to save people.")
